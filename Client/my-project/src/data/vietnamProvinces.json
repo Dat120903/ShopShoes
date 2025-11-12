@@ -1,0 +1,138 @@
+[
+  {
+    "code": "01",
+    "name": "Hà Nội",
+    "districts": [
+      "Ba Đình",
+      "Hoàn Kiếm",
+      "Đống Đa",
+      "Cầu Giấy",
+      "Hà Đông",
+      "Thanh Xuân",
+      "Nam Từ Liêm",
+      "Bắc Từ Liêm",
+      "Tây Hồ",
+      "Long Biên"
+    ]
+  },
+  {
+    "code": "02",
+    "name": "TP Hồ Chí Minh",
+    "districts": [
+      "Quận 1",
+      "Quận 3",
+      "Quận 5",
+      "Quận 7",
+      "Bình Thạnh",
+      "Phú Nhuận",
+      "Gò Vấp",
+      "Tân Bình",
+      "Thủ Đức",
+      "Bình Tân"
+    ]
+  },
+  {
+    "code": "03",
+    "name": "Đà Nẵng",
+    "districts": [
+      "Hải Châu",
+      "Thanh Khê",
+      "Liên Chiểu",
+      "Ngũ Hành Sơn",
+      "Sơn Trà",
+      "Cẩm Lệ",
+      "Hòa Vang"
+    ]
+  },
+  {
+    "code": "04",
+    "name": "Hải Phòng",
+    "districts": [
+      "Hồng Bàng",
+      "Lê Chân",
+      "Ngô Quyền",
+      "Kiến An",
+      "Hải An",
+      "Đồ Sơn",
+      "Thủy Nguyên"
+    ]
+  },
+  {
+    "code": "05",
+    "name": "Cần Thơ",
+    "districts": [
+      "Ninh Kiều",
+      "Bình Thủy",
+      "Cái Răng",
+      "Ô Môn",
+      "Thốt Nốt",
+      "Phong Điền",
+      "Cờ Đỏ"
+    ]
+  },
+  {
+    "code": "06",
+    "name": "Thanh Hóa",
+    "districts": [
+      "TP Thanh Hóa",
+      "Sầm Sơn",
+      "Bỉm Sơn",
+      "Hoằng Hóa",
+      "Hậu Lộc",
+      "Quảng Xương",
+      "Tĩnh Gia"
+    ]
+  },
+  {
+    "code": "07",
+    "name": "Nghệ An",
+    "districts": [
+      "TP Vinh",
+      "Cửa Lò",
+      "Diễn Châu",
+      "Quỳnh Lưu",
+      "Nam Đàn",
+      "Hưng Nguyên",
+      "Đô Lương"
+    ]
+  },
+  {
+    "code": "08",
+    "name": "Thái Bình",
+    "districts": [
+      "TP Thái Bình",
+      "Quỳnh Phụ",
+      "Đông Hưng",
+      "Tiền Hải",
+      "Thái Thụy",
+      "Hưng Hà",
+      "Vũ Thư"
+    ]
+  },
+  {
+    "code": "09",
+    "name": "Bắc Ninh",
+    "districts": [
+      "TP Bắc Ninh",
+      "Từ Sơn",
+      "Yên Phong",
+      "Tiên Du",
+      "Thuận Thành",
+      "Gia Bình",
+      "Lương Tài"
+    ]
+  },
+  {
+    "code": "10",
+    "name": "Bình Dương",
+    "districts": [
+      "Thủ Dầu Một",
+      "Thuận An",
+      "Dĩ An",
+      "Tân Uyên",
+      "Bến Cát",
+      "Bàu Bàng",
+      "Phú Giáo"
+    ]
+  }
+]
