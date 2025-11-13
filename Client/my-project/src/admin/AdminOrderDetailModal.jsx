@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { X } from "lucide-react";
+import { API_BASE } from "../config/api";
+
 
 export default function AdminOrderDetailModal({ order, onClose, onStatusChange }) {
   if (!order) return null;
@@ -11,7 +13,8 @@ export default function AdminOrderDetailModal({ order, onClose, onStatusChange }
   const handleSaveStatus = async () => {
     try {
       setSaving(true);
-      const res = await fetch(`http://localhost:5000/api/orders/${order._id}/status`, {
+const res = await fetch(`https://thanhdatshoes.id.vn/api/orders/${order._id}/status`, {
+
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),

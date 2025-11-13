@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
+import { API_BASE } from "../config/api";
 
 const AuthContext = createContext();
 
@@ -25,7 +26,7 @@ export const AuthProvider = ({ children }) => {
         const decoded = jwtDecode(storedToken);
         const userId = decoded.id || decoded.userId || decoded._id;
 
-        fetch(`http://localhost:5000/api/auth/user/${userId}`, {
+fetch(`https://thanhdatshoes.id.vn/api/auth/user/${userId}`, {
           headers: { Authorization: `Bearer ${storedToken}` },
         })
           .then((res) => res.json())
@@ -54,7 +55,7 @@ export const AuthProvider = ({ children }) => {
       const decoded = jwtDecode(token);
       const userId = decoded.id || decoded.userId || decoded._id;
 
-      fetch(`http://localhost:5000/api/auth/user/${userId}`, {
+fetch(`https://thanhdatshoes.id.vn/api/auth/user/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then((res) => res.json())

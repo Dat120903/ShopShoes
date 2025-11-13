@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import CheckoutSteps from "../../components/CheckoutSteps";
+import { API_BASE } from "../../config/api";
+
 
 const fmtVND = (n) => `${Number(n || 0).toLocaleString("vi-VN")}₫`;
 
@@ -21,7 +23,7 @@ export default function OrderConfirm() {
 
     // 🔹 Lấy lại đơn từ DB (nếu có _id)
     if (parsed?._id) {
-      fetch(`http://localhost:5000/api/orders/${parsed._id}`)
+fetch(`https://thanhdatshoes.id.vn/api/orders/${parsed._id}`)
         .then((res) => res.json())
         .then((data) => {
           if (data && data._id) setOrder(data);

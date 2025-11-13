@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartProvider.jsx";
 import toast from "react-hot-toast"; // ✅ thêm dòng này
+import { API_BASE } from "../../config/api";
 
 
 export default function ProductDetail() {
@@ -17,9 +18,12 @@ export default function ProductDetail() {
   const [showMoreImages, setShowMoreImages] = useState(false);
   const sizes = ["35", "36", "37", "38", "39"];
 
+  
+
+
   useEffect(() => {
     const fetchDetail = async () => {
-      const res = await fetch(`http://localhost:5000/api/products/${id}`);
+const res = await fetch(`https://thanhdatshoes.id.vn/api/products/${id}`);
       const data = await res.json();
       setProduct(data);
     };
@@ -28,7 +32,7 @@ export default function ProductDetail() {
 
   useEffect(() => {
     const fetchRecs = async () => {
-      const res = await fetch(`http://localhost:5000/api/products/recommend/${id}`);
+const res = await fetch(`https://thanhdatshoes.id.vn/api/products/recommend/${id}`);
       const data = await res.json();
       setRecs(data);
     };

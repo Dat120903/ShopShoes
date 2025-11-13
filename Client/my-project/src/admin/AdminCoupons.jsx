@@ -1,5 +1,7 @@
 // src/admin/AdminCoupons.jsx
 import React, { useEffect, useState } from "react";
+import { API_BASE } from "../config/api";
+
 
 export default function AdminCoupons() {
   const [coupons, setCoupons] = useState([]);
@@ -13,7 +15,7 @@ export default function AdminCoupons() {
 
   // 🔄 Lấy danh sách mã
   const fetchCoupons = async () => {
-    const res = await fetch("http://localhost:5000/api/coupons");
+const res = await fetch("https://thanhdatshoes.id.vn/api/coupons");
     const data = await res.json();
     setCoupons(data);
   };
@@ -25,7 +27,7 @@ export default function AdminCoupons() {
   // ➕ Tạo mã mới
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const res = await fetch("http://localhost:5000/api/coupons", {
+const res = await fetch("https://thanhdatshoes.id.vn/api/coupons", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
@@ -48,7 +50,7 @@ export default function AdminCoupons() {
   // 🗑️ Xóa mã
   const deleteCoupon = async (id) => {
     if (!window.confirm("Xóa mã này?")) return;
-    await fetch(`http://localhost:5000/api/coupons/${id}`, { method: "DELETE" });
+    await fetch(`${API_BASE}/coupons/${id}`, { method: "DELETE" });
     fetchCoupons();
   };
 

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import AdminOrderDetailModal from "./AdminOrderDetailModal";
+import { API_BASE } from "../config/api";
+
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
@@ -12,7 +14,7 @@ export default function AdminOrders() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/orders");
+const res = await fetch("https://thanhdatshoes.id.vn/api/orders");
         const data = await res.json();
         setOrders(data);
         setFilteredOrders(data);

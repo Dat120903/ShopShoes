@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Heart, ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useWishlist } from "../../context/WishlistContext";
+import { API_BASE } from "../../config/api";
 
 export default function Content() {
   const [products, setProducts] = useState([]);
@@ -18,7 +19,7 @@ export default function Content() {
 
   // 📦 Lấy danh sách sản phẩm
   useEffect(() => {
-    fetch("http://localhost:5000/api/products")
+fetch("https://thanhdatshoes.id.vn/api/products")
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {

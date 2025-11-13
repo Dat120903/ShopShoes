@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import AccountSidebar from "../../components/AccountSidebar";
+import { API_BASE } from "../../config/api";
+
 
 const AccountDetails = () => {
   const [formData, setFormData] = useState({
@@ -18,7 +20,7 @@ const AccountDetails = () => {
   // ✅ Lấy thông tin người dùng từ server
   useEffect(() => {
     if (!userId) return;
-    fetch(`http://localhost:5000/api/auth/user/${userId}`)
+fetch(`https://thanhdatshoes.id.vn/api/auth/user/${userId}`)
       .then((res) => res.json())
       .then((data) => {
         setFormData({
@@ -47,7 +49,7 @@ const AccountDetails = () => {
       if (formData.newPassword !== formData.confirmPassword)
         return alert("Mật khẩu xác nhận không khớp!");
 
-      const resPass = await fetch(`http://localhost:5000/api/users/change-password/${userId}`, {
+const resPass = await fetch(`https://thanhdatshoes.id.vn/api/users/change-password/${userId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -61,7 +63,7 @@ const AccountDetails = () => {
     }
 
     // 2️⃣ Cập nhật họ tên / sđt / email
-    const res = await fetch(`http://localhost:5000/api/users/update-info/${userId}`, {
+const res = await fetch(`https://thanhdatshoes.id.vn/api/users/update-info/${userId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

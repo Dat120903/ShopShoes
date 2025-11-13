@@ -1,5 +1,6 @@
 // src/admin/AdminDashboard.jsx
 import React, { useEffect, useState } from "react";
+import { API_BASE } from "../config/api";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -12,7 +13,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/admin/stats");
+const res = await fetch("https://thanhdatshoes.id.vn/api/admin/stats");
         const data = await res.json();
         setStats(data);
       } catch (err) {

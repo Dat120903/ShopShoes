@@ -9,8 +9,8 @@ import {
   ImagePlus,
   X,
 } from "lucide-react";
+import { API_BASE } from "../config/api";
 
-const API_BASE = "http://localhost:5000/api";
 
 // ====== Small Helpers ======
 const currency = (n) =>
@@ -59,12 +59,11 @@ export default function AdminProducts() {
 
       // ✅ Gọi /search chỉ khi có ít nhất 2 ký tự
       if (q.trim().length >= 2) {
-        const res = await fetch(
-          `${API_BASE}/products/search?q=${encodeURIComponent(q.trim())}`
-        );
+        const res = await fetch(`https://thanhdatshoes.id.vn/api/products/search?q=${encodeURIComponent(q.trim())}`);
+
         data = await res.json();
       } else {
-        const res = await fetch(`${API_BASE}/products`);
+const res = await fetch("https://thanhdatshoes.id.vn/api/products");
         data = await res.json();
       }
 
@@ -147,7 +146,7 @@ export default function AdminProducts() {
     try {
       setLoading(true);
       const res = await fetch(
-        `${API_BASE}/products${editing ? `/${editing._id || editing.id}` : ""}`,
+        `https://thanhdatshoes.id.vn/api/products${editing ? `/${editing._id || editing.id}` : ""}`,
         {
           method: editing ? "PUT" : "POST",
           headers: { "Content-Type": "application/json" },
@@ -182,7 +181,7 @@ export default function AdminProducts() {
 
     try {
       setLoading(true);
-      const res = await fetch(`${API_BASE}/products/${id}`, { method: "DELETE" });
+const res = await fetch(`https://thanhdatshoes.id.vn/api/products/${id}`, { method: "DELETE" });
       const data = await res.json();
       if (!res.ok) {
         alert(data?.message || "Xóa thất bại!");

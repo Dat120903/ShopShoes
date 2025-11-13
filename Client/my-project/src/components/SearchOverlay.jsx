@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { X, Search } from "lucide-react";
 import { Link } from "react-router-dom";
+import { API_BASE } from "../config/api";
+
 
 const SearchOverlay = ({ isOpen, onClose }) => {
   const [query, setQuery] = useState("");
@@ -30,7 +32,7 @@ const SearchOverlay = ({ isOpen, onClose }) => {
   const fetchProducts = async (q) => {
     try {
       setLoading(true);
-      const res = await fetch(`http://localhost:5000/api/search?q=${encodeURIComponent(q)}`);
+const res = await fetch(`https://thanhdatshoes.id.vn/api/search?q=${encodeURIComponent(q)}`);
       const data = await res.json();
       setResults(data.items || []);
       setIndex(0);

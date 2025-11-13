@@ -1,4 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { API_BASE } from "../config/api";
+
+
 
 const WishlistContext = createContext();
 
@@ -27,7 +30,7 @@ export const WishlistProvider = ({ children }) => {
       return;
     }
 
-    fetch(`http://localhost:5000/api/auth/wishlist/${userId}`)
+fetch(`https://thanhdatshoes.id.vn/api/auth/wishlist/${userId}`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setWishlist(data);
@@ -45,7 +48,7 @@ export const WishlistProvider = ({ children }) => {
     }
 
     try {
-      const res = await fetch(`http://localhost:5000/api/auth/wishlist/${currentId}`, {
+const res = await fetch(`https://thanhdatshoes.id.vn/api/auth/wishlist/${currentId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ product }),

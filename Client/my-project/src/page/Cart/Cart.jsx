@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartProvider.jsx";
 import { X } from "lucide-react";
 import toast from "react-hot-toast";
+import { API_BASE } from "../../config/api";
+
 
 export default function Cart() {
   const { cartItems = [], increaseQty, decreaseQty, removeFromCart } = useCart();
@@ -48,7 +50,7 @@ export default function Cart() {
     if (!code) return toast.error("⚠️ Vui lòng nhập mã giảm giá!");
 
     try {
-      const res = await fetch("http://localhost:5000/api/coupons/check", {
+const res = await fetch("https://thanhdatshoes.id.vn/api/coupons/check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code, total: subtotal }),

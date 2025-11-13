@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { API_BASE } from "../config/api";
+
 
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
@@ -8,7 +10,7 @@ export default function AdminUsers() {
 
   // 🟢 Lấy danh sách user
   const fetchUsers = async () => {
-    const res = await fetch("http://localhost:5000/api/users");
+const res = await fetch("https://thanhdatshoes.id.vn/api/users");
     const data = await res.json();
     setUsers(data);
     setLoading(false);
@@ -20,13 +22,14 @@ export default function AdminUsers() {
 
   // 🟡 Tạo mới hoặc cập nhật
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const method = editId ? "PUT" : "POST";
-    const url = editId
-      ? `http://localhost:5000/api/users/${editId}`
-      : "http://localhost:5000/api/users";
+  e.preventDefault();
+  const method = editId ? "PUT" : "POST";
+  const url = editId
+  ? `https://thanhdatshoes.id.vn/api/users/${editId}`
+  : `https://thanhdatshoes.id.vn/api/users`;
 
-    await fetch(url, {
+
+  await fetch(url, {
       method,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
@@ -40,7 +43,7 @@ export default function AdminUsers() {
   // 🧹 Xóa user
   const handleDelete = async (id) => {
     if (window.confirm("Xóa user này?")) {
-      await fetch(`http://localhost:5000/api/users/${id}`, { method: "DELETE" });
+await fetch(`https://thanhdatshoes.id.vn/api/users/${id}`, { method: "DELETE" });
       fetchUsers();
     }
   };

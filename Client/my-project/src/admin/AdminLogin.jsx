@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useAdminAuth } from "../context/AdminAuthContext.jsx";
 import { useNavigate } from "react-router-dom";
+import { API_BASE } from "../config/api";
 
 export default function AdminLogin() {
   const { login } = useAdminAuth();
@@ -10,7 +11,7 @@ export default function AdminLogin() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch("http://localhost:5000/api/admin/login", {
+const res = await fetch("https://thanhdatshoes.id.vn/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),

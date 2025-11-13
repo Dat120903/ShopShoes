@@ -5,6 +5,8 @@ import { useCart } from "../../context/CartProvider.jsx";
 import CheckoutSteps from "../../components/CheckoutSteps";
 import provincesData from "../../data/vietnamProvinces.json";
 import toast from "react-hot-toast";
+import { API_BASE } from "../../config/api";
+
 
 const fmtVND = (n) => `${Number(n || 0).toLocaleString("vi-VN")}₫`;
 
@@ -45,7 +47,7 @@ export default function Checkout() {
   // ✅ Lấy thông tin người dùng (auto fill)
   useEffect(() => {
     if (!userId) return;
-    fetch(`http://localhost:5000/api/auth/user/${userId}`, {
+fetch(`https://thanhdatshoes.id.vn/api/auth/user/${userId}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -148,7 +150,7 @@ export default function Checkout() {
 
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:5000/api/orders", {
+const res = await fetch("https://thanhdatshoes.id.vn/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderData),

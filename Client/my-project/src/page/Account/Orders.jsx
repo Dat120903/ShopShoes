@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import AccountSidebar from "../../components/AccountSidebar";
 import OrderDetailModal from "../../components/OrderDetailModal";
+import { API_BASE } from "../../config/api";
+
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
@@ -10,7 +12,7 @@ export default function Orders() {
   useEffect(() => {
     if (!userId) return;
 
-    fetch(`http://localhost:5000/api/orders/user/${userId}`)
+fetch(`https://thanhdatshoes.id.vn/api/orders/user/${userId}`)
       .then((res) => res.json())
       .then((data) => setOrders(data))
       .catch((err) => console.error("❌ Lỗi lấy đơn hàng:", err));

@@ -3,6 +3,7 @@ import { X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast"; // ✅ thêm dòng này
+import { API_BASE } from "../config/api";
 
 export default function LoginDrawer({ isOpen, onClose }) {
   const [isRegister, setIsRegister] = useState(false);
@@ -18,7 +19,7 @@ export default function LoginDrawer({ isOpen, onClose }) {
       return toast.error("Vui lòng nhập đầy đủ thông tin!");
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/login", {
+const res = await fetch("https://thanhdatshoes.id.vn/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
@@ -63,7 +64,7 @@ export default function LoginDrawer({ isOpen, onClose }) {
     return toast.error("Mật khẩu xác nhận không khớp!");
 
   try {
-    const res = await fetch("http://localhost:5000/api/auth/register", {
+const res = await fetch("https://thanhdatshoes.id.vn/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password, confirmPassword }),
