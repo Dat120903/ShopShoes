@@ -2,8 +2,7 @@ import { useState } from "react";
 import { X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import toast from "react-hot-toast"; // ✅ thêm dòng này
-import { API_BASE } from "../config/api";
+import toast from "react-hot-toast";
 
 export default function LoginDrawer({ isOpen, onClose }) {
   const [isRegister, setIsRegister] = useState(false);
@@ -19,7 +18,7 @@ export default function LoginDrawer({ isOpen, onClose }) {
       return toast.error("Vui lòng nhập đầy đủ thông tin!");
 
     try {
-const res = await fetch("https://thanhdatshoes.id.vn/api/auth/login", {
+      const res = await fetch("https://thanhdatshoes.id.vn/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
@@ -41,60 +40,55 @@ const res = await fetch("https://thanhdatshoes.id.vn/api/auth/login", {
   };
 
   const handleRegister = async (e) => {
-  e.preventDefault();
-  const username = e.target[0].value.trim();
-  const password = e.target[1].value.trim();
-  const confirmPassword = e.target[2].value.trim();
+    e.preventDefault();
+    const username = e.target[0].value.trim();
+    const password = e.target[1].value.trim();
+    const confirmPassword = e.target[2].value.trim();
 
-  if (!username || !password || !confirmPassword)
-    return toast.error("Vui lòng nhập đầy đủ thông tin!");
+    if (!username || !password || !confirmPassword)
+      return toast.error("Vui lòng nhập đầy đủ thông tin!");
 
-  if (username.length < 6)
-    return toast.error("Tên tài khoản phải có ít nhất 6 ký tự!");
+    if (username.length < 6)
+      return toast.error("Tên tài khoản phải có ít nhất 6 ký tự!");
 
-  const strongPassword =
-    /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-={}[\]|:;"'<>,.?/]).{8,}$/;
+    const strongPassword =
+      /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-={}[\]|:;"'<>,.?/]).{8,}$/;
 
-  if (!strongPassword.test(password))
-    return toast.error(
-      "Mật khẩu phải có ít nhất 8 ký tự, bao gồm 1 chữ in hoa, 1 số và 1 ký tự đặc biệt!"
-    );
+    if (!strongPassword.test(password))
+      return toast.error(
+        "Mật khẩu phải có ít nhất 8 ký tự, bao gồm 1 chữ in hoa, 1 số và 1 ký tự đặc biệt!"
+      );
 
-  if (password !== confirmPassword)
-    return toast.error("Mật khẩu xác nhận không khớp!");
+    if (password !== confirmPassword)
+      return toast.error("Mật khẩu xác nhận không khớp!");
 
-  try {
-const res = await fetch("https://thanhdatshoes.id.vn/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password, confirmPassword }),
-    });
+    try {
+      const res = await fetch("https://thanhdatshoes.id.vn/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password, confirmPassword }),
+      });
 
-    const data = await res.json();
-    if (!res.ok) return toast.error(data.message || "Đăng ký thất bại!");
+      const data = await res.json();
+      if (!res.ok) return toast.error(data.message || "Đăng ký thất bại!");
 
-    // ✅ Reset form và chuyển sang tab đăng nhập
-    e.target.reset();
-    toast.success("🎉 Đăng ký thành công! Vui lòng đăng nhập lại.");
-    setIsRegister(false);
-  } catch (err) {
-    console.error("❌ Lỗi đăng ký:", err);
-    toast.error("Không thể kết nối đến server!");
-  }
-};
-
+      e.target.reset();
+      toast.success("🎉 Đăng ký thành công! Vui lòng đăng nhập lại.");
+      setIsRegister(false);
+    } catch (err) {
+      console.error("❌ Lỗi đăng ký:", err);
+      toast.error("Không thể kết nối đến server!");
+    }
+  };
 
   return (
     <>
-      {/* Overlay nền mờ */}
+      {/* OVERLAY */}
       {isOpen && (
-        <div
-          onClick={onClose}
-          className="fixed inset-0 bg-black/40 z-[10000]"
-        ></div>
+        <div onClick={onClose} className="fixed inset-0 bg-black/40 z-[10000]"></div>
       )}
 
-      {/* Drawer chính */}
+      {/* DRAWER */}
       <div
         className={`fixed top-0 right-0 h-full w-[420px] bg-white shadow-lg z-[10001] transform transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
@@ -129,8 +123,9 @@ const res = await fetch("https://thanhdatshoes.id.vn/api/auth/register", {
                   <input
                     type="password"
                     placeholder="Mật khẩu *"
-                    className="w-full border border-gray-900 px-3 py-4 text-sm focus:outline-none focus:ring-1 focus:ring-black"
+                    className="w-full border border-gray-300 px-3 py-4 text-sm focus:outline-none focus:ring-1 focus:ring-black"
                   />
+
                   <button
                     type="submit"
                     className="w-full bg-black text-white py-5 font-semibold uppercase text-sm hover:bg-gray-800 transition"
@@ -138,6 +133,24 @@ const res = await fetch("https://thanhdatshoes.id.vn/api/auth/register", {
                     Đăng nhập
                   </button>
                 </form>
+
+                {/* ——— HOẶC ——— */}
+                <div className="flex items-center gap-3 my-6">
+                  <span className="flex-1 h-px bg-gray-300" />
+                  <span className="text-gray-500 text-sm">Hoặc</span>
+                  <span className="flex-1 h-px bg-gray-300" />
+                </div>
+
+                {/* 🔥 NÚT ĐĂNG NHẬP QUA FUMEE */}
+                <button
+                  onClick={() =>
+                    (window.location.href =
+                      "https://id.fumeesoft.com/?url_callback=thanhdatshoes.id.vn")
+                  }
+                  className="w-full py-3 bg-[#D6001C] text-white font-semibold rounded-md hover:bg-[#b10017] transition"
+                >
+                  Đăng nhập qua Fumee
+                </button>
 
                 <p className="text-center text-sm mt-6 text-gray-700">
                   Bạn chưa có tài khoản?{" "}
@@ -166,11 +179,12 @@ const res = await fetch("https://thanhdatshoes.id.vn/api/auth/register", {
                   <input
                     type="password"
                     placeholder="Xác nhận mật khẩu *"
-                    className="w-full border border-gray-900 px-3 py-4 text-sm focus:outline-none focus:ring-1 focus:ring-black"
+                    className="w-full border border-gray-300 px-3 py-4 text-sm focus:outline-none focus:ring-1 focus:ring-black"
                   />
 
                   <p className="text-[13px] text-gray-600 leading-relaxed mt-2">
-                    Mật khẩu cần ít nhất 8 ký tự, có 1 chữ in hoa, 1 số và 1 ký tự đặc biệt.
+                    Mật khẩu cần ít nhất 8 ký tự, có 1 chữ in hoa, 1 số và 1 ký tự
+                    đặc biệt.
                   </p>
 
                   <button

@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
-import { API_BASE } from "../config/api";
 
 const AuthContext = createContext();
 
@@ -9,83 +8,85 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem("token") || null);
   const [loading, setLoading] = useState(true);
 
-  // 🧠 Tải lại user khi reload
+  // 🧠 Load user từ localStorage (cả nội bộ + Fumee)
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
+    const fumeeToken = localStorage.getItem("fumeesoft_token");
     const storedUser = localStorage.getItem("user");
 
+    // Nếu đã có user lưu sẵn (nội bộ hoặc Fumee) thì set luôn
     if (storedUser) {
       setUser(JSON.parse(storedUser));
-      setToken(storedToken);
-      setLoading(false);
-      return;
     }
 
     if (storedToken) {
-      try {
-        const decoded = jwtDecode(storedToken);
-        const userId = decoded.id || decoded.userId || decoded._id;
+      setToken(storedToken);
+    }
 
-fetch(`https://thanhdatshoes.id.vn/api/auth/user/${userId}`, {
-          headers: { Authorization: `Bearer ${storedToken}` },
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            const currentUser = {
-              _id: userId,
-              username: data.username || data.fullName || "Người dùng",
-              role: decoded.role || "user",
-            };
-            setUser(currentUser);
-            localStorage.setItem("user", JSON.stringify(currentUser));
-            localStorage.setItem("userId", userId);
-          });
-      } catch (err) {
-        console.error("❌ Lỗi decode JWT:", err);
-        localStorage.removeItem("token");
-      }
+    // Không có token mà vẫn có fumeeToken thì vẫn coi là đang login
+    if (!storedToken && fumeeToken && storedUser) {
+      setUser(JSON.parse(storedUser));
     }
 
     setLoading(false);
   }, []);
 
-  // 🧩 Đăng nhập
-  const login = (token) => {
+  // 🧩 Đăng nhập nội bộ
+  const login = async (token) => {
     try {
       const decoded = jwtDecode(token);
       const userId = decoded.id || decoded.userId || decoded._id;
 
-fetch(`https://thanhdatshoes.id.vn/api/auth/user/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          const currentUser = {
-            _id: userId,
-            username: data.username || data.fullName || "Người dùng",
-            role: decoded.role || "user",
-          };
-          setUser(currentUser);
-          setToken(token);
-          localStorage.setItem("token", token);
-          localStorage.setItem("userId", userId);
-          localStorage.setItem("user", JSON.stringify(currentUser));
-          window.dispatchEvent(new Event("storage")); // reload CartProvider
-        });
+      const res = await fetch(
+        `https://thanhdatshoes.id.vn/api/auth/user/${userId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const data = await res.json();
+
+      const currentUser = {
+        _id: userId,
+        username: data.username || data.fullName || "Người dùng",
+        role: decoded.role || "user",
+      };
+
+      setUser(currentUser);
+      setToken(token);
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(currentUser));
+      localStorage.setItem("userId", userId);
+
+      window.dispatchEvent(new Event("storage"));
     } catch (err) {
       console.error("❌ Lỗi login:", err);
     }
   };
 
-  // 🧩 Đăng xuất
+  // 🧩 Đăng xuất (nội bộ + Fumee)
   const logout = async () => {
     setUser(null);
     setToken(null);
+
+    // Xoá token nội bộ
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
+
+    // Xoá token Fumee
+    localStorage.removeItem("fumeesoft_token");
+
+    // Xoá user (dùng chung cho cả 2)
+    localStorage.removeItem("fumee_user");
     localStorage.removeItem("user");
-    localStorage.removeItem("cart"); // clear cache giỏ
+
+    // Xoá giỏ hàng
+    localStorage.removeItem("cart");
+
     window.dispatchEvent(new Event("storage"));
+
+    // Reload nhẹ để UI reset hẳn
+    setTimeout(() => window.location.reload(), 120);
   };
 
   return (

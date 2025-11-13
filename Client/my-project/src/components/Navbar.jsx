@@ -3,8 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import LogoImage from "../assets/LoGo.png";
 import { Search, User, Heart, ShoppingBag, Menu } from "lucide-react";
 import SearchOverlay from "./SearchOverlay";
-import { useCart } from "../context/CartProvider.jsx";
 import WishlistDrawer from "./WishlistDrawer";
+import LoginDrawer from "./LoginDrawer";
+import { useCart } from "../context/CartProvider.jsx";
 
 const navLinks = [
   { label: "HÀNG MỚI", href: "/comingsoon" },
@@ -17,35 +18,36 @@ const navLinks = [
 export default function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [wishlistOpen, setWishlistOpen] = useState(false);
+  const [loginOpen, setLoginOpen] = useState(false);
   const navigate = useNavigate();
 
   const { cartItems, setIsCartOpen } = useCart();
   const totalQty = cartItems.reduce((sum, item) => sum + item.qty, 0);
 
-  // ✔ USER FUMEE
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
-  const isLoggedIn = !!localStorage.getItem("fumeesoft_token");
+  const handleUserClick = () => {
+    const token = localStorage.getItem("token");
+    const fumeeToken = localStorage.getItem("fumeesoft_token");
 
-  const loginFumee = () => {
-    window.location.href =
-      "https://id.fumeesoft.com/?url_callback=thanhdatshoes.id.vn";
-  };
-
-  const logoutFumee = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("fumeesoft_token");
-    window.location.reload();
+    if (token || fumeeToken) {
+      // Đã login (nội bộ hoặc Fumee)
+      navigate("/account");
+    } else {
+      // Chưa login → mở drawer
+      setLoginOpen(true);
+    }
   };
 
   return (
     <>
-      {/* ===== NAVBAR ===== */}
       <header className="fixed top-0 left-0 right-0 z-[10000] bg-white border-b border-gray-200 shadow-sm h-[100px] flex items-center">
         <div className="max-w-[1410px] mx-auto px-4 sm:px-6 lg:px-8 w-full flex items-center justify-between">
-          
           {/* LOGO */}
           <Link to="/" className="shrink-0">
-            <img src={LogoImage} alt="EVASHOES" className="w-[150px] sm:w-[180px]" />
+            <img
+              src={LogoImage}
+              alt="EVASHOES"
+              className="w-[150px] sm:w-[180px] h-auto"
+            />
           </Link>
 
           {/* MENU LINKS */}
@@ -64,43 +66,28 @@ export default function Navbar() {
             ))}
           </nav>
 
-          {/* ICONS */}
+          {/* ICONS RIGHT */}
           <div className="flex items-center gap-4 sm:gap-6">
-
             {/* 🔍 Search */}
             <button onClick={() => setSearchOpen(true)}>
               <Search className="w-5 h-5 hover:text-[#D6001C]" />
             </button>
 
-            {/* 👤 LOGIN FUMEE */}
-            {isLoggedIn ? (
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold">
-                  Xin chào, {user.displayName}
-                </span>
-                <button
-                  onClick={logoutFumee}
-                  className="text-xs text-red-600 hover:text-red-800"
-                >
-                  Đăng xuất
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={loginFumee}
-                className="text-sm px-3 py-[6px] bg-[#D6001C] text-white rounded-md hover:bg-[#b10017] transition"
-              >
-                Đăng nhập Fumee
-              </button>
-            )}
+            {/* 👤 User */}
+            <button onClick={handleUserClick} className="hover:text-[#D6001C]">
+              <User className="w-5 h-5" />
+            </button>
 
-            {/* 🤍 Wishlist */}
+            {/* ❤️ Wishlist */}
             <button onClick={() => setWishlistOpen(true)}>
               <Heart className="w-5 h-5 hover:text-[#D6001C]" />
             </button>
 
             {/* 🛒 Cart */}
-            <div className="relative cursor-pointer" onClick={() => setIsCartOpen(true)}>
+            <div
+              className="relative cursor-pointer"
+              onClick={() => setIsCartOpen(true)}
+            >
               <ShoppingBag className="w-5 h-5 hover:text-[#D6001C]" />
               {totalQty > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[10px] rounded-full min-w-[16px] h-[16px] flex items-center justify-center px-[3px] font-semibold">
@@ -109,20 +96,24 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* ☰ Mobile */}
+            {/* ☰ Mobile Menu */}
             <button>
               <Menu className="w-6 h-6 hover:text-[#D6001C]" />
             </button>
-
           </div>
         </div>
       </header>
 
-      {/* SEARCH OVERLAY */}
-      <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
-
-      {/* WISHLIST DRAWER */}
-      <WishlistDrawer isOpen={wishlistOpen} onClose={() => setWishlistOpen(false)} />
+      {/* OVERLAYS / DRAWERS */}
+      <SearchOverlay
+        isOpen={searchOpen}
+        onClose={() => setSearchOpen(false)}
+      />
+      <WishlistDrawer
+        isOpen={wishlistOpen}
+        onClose={() => setWishlistOpen(false)}
+      />
+      <LoginDrawer isOpen={loginOpen} onClose={() => setLoginOpen(false)} />
     </>
   );
 }

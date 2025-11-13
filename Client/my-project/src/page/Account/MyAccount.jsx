@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AccountSidebar from "../../components/AccountSidebar";
 import { useAuth } from "../../context/AuthContext.jsx";
@@ -7,18 +7,28 @@ import { useCart } from "../../context/CartProvider.jsx";
 const MyAccount = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const { clearLocalCart } = useCart(); // ✅ chỉ xoá giỏ FE khi logout
+  const { clearLocalCart } = useCart();
+
+  // 🔒 Chặn truy cập nếu chưa login
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const fumeeToken = localStorage.getItem("fumeesoft_token");
+
+    if (!token && !fumeeToken) {
+      navigate("/", { replace: true });
+    }
+  }, [navigate]);
+
+  // Tên hiển thị: ưu tiên username → displayName → "Người dùng"
+  const displayName =
+    user?.username || user?.displayName || "Người dùng";
 
   const handleLogout = async () => {
     try {
-      // 🔹 Gọi hàm logout từ AuthContext (xóa token, user info)
-      await logout();
+      await logout(); // xóa token + user + Fumee + cart (trong AuthContext)
 
-      // 🔹 Xóa dữ liệu phụ trong localStorage
+      // Xóa thêm các key phụ nếu còn
       [
-        "userId",
-        "token",
-        "username",
         "discountCode",
         "discountRate",
         "discountValue",
@@ -27,13 +37,8 @@ const MyAccount = () => {
         "lastOrder",
       ].forEach((key) => localStorage.removeItem(key));
 
-      // 🔹 Xóa giỏ hàng ở FE
       clearLocalCart?.();
 
-      // 🔹 Gửi sự kiện để sync giữa các tab (nếu có)
-      window.dispatchEvent(new Event("storage"));
-
-      // 🔹 Quay về trang chủ
       navigate("/", { replace: true });
     } catch (err) {
       console.error("❌ Lỗi khi đăng xuất:", err);
@@ -42,7 +47,9 @@ const MyAccount = () => {
 
   return (
     <section className="max-w-[1410px] mx-auto px-4 sm:px-6 lg:px-8 mt-[120px] min-h-[70vh]">
-      <h1 className="text-[32px] font-bold uppercase mb-10">TÀI KHOẢN CỦA TÔI</h1>
+      <h1 className="text-[32px] font-bold uppercase mb-10">
+        TÀI KHOẢN CỦA TÔI
+      </h1>
 
       <div className="flex flex-col md:flex-row gap-10 text-[16px] text-gray-700 leading-relaxed">
         <AccountSidebar />
@@ -50,13 +57,9 @@ const MyAccount = () => {
         <div className="flex-1">
           <p>
             Xin chào{" "}
-            <span className="font-bold text-black">
-              {user?.username || "Người dùng"}
-            </span>{" "}
+            <span className="font-bold text-black">{displayName}</span>{" "}
             (không phải{" "}
-            <span className="font-bold text-black">
-              {user?.username || "Người dùng"}
-            </span>
+            <span className="font-bold text-black">{displayName}</span>
             ?{" "}
             <button
               onClick={handleLogout}
