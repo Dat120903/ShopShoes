@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
-// ==== COMPONENTS ====
+// COMPONENTS
 import Navbar from "./components/Navbar";
 import CartDrawer from "./components/CartDrawer";
 import NewsletterPopup from "./components/NewsletterPopup";
@@ -19,7 +19,7 @@ import Limited from "./components/Limited";
 import Instagram from "./components/Instagram";
 import ServiceSection from "./components/ServiceSection";
 
-// ==== PAGES ====
+// PAGES
 import ShopList from "./page/ShopList/ShopList";
 import Collection from "./page/Collection/Collection";
 import ContentCollection from "./page/Collection/ContentCollection";
@@ -42,7 +42,7 @@ import AccountDetails from "./page/Account/AccountDetails";
 import ComingSoon from "./page/ComingSoon/ComingSoon";
 import NotFound from "./page/NotFound/NotFound";
 
-// ==== ADMIN ====
+// ADMIN
 import AdminLayout from "./admin/AdminLayout";
 import AdminDashboard from "./admin/AdminDashboard";
 import AdminProducts from "./admin/AdminProducts";
@@ -52,16 +52,18 @@ import AdminCoupons from "./admin/AdminCoupons";
 import AdminRoute from "./routes/AdminRoute";
 import AdminLogin from "./admin/AdminLogin";
 
-// ==== CONTEXT ====
+// CONTEXT
 import AppProviders from "./context/Providers.jsx";
 import { AdminAuthProvider } from "./context/AdminAuthContext.jsx";
 
+
 // ============================
-// 🧩 Layout người dùng
+// LAYOUT người dùng
 // ============================
 const UserLayout = ({ children }) => {
   const location = useLocation();
   const path = location.pathname.toLowerCase();
+
   const hideFooter = ["/notfound", "/comingsoon"].includes(path);
   const showNewsletter = path === "/";
 
@@ -78,18 +80,42 @@ const UserLayout = ({ children }) => {
   );
 };
 
+
 // ============================
-// 🚀 App chính
+// APP CHÍNH
 // ============================
 export default function App() {
+
+  // 🧩 XỬ LÝ TOKEN FUMEE TRẢ VỀ
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+
+    if (token) {
+      localStorage.setItem("fumeesoft_token", token);
+
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        localStorage.setItem("user", JSON.stringify(payload));
+      } catch (e) {
+        console.error("Token Fumee không hợp lệ:", e);
+      }
+
+      // XÓA token khỏi URL
+      const url = new URL(window.location.href);
+      url.searchParams.delete("token");
+      window.history.replaceState({}, document.title, url.pathname);
+    }
+  }, []);
+
+
   return (
     <AppProviders>
       <Router>
-        {/* ✅ Tự động scroll lên đầu mỗi khi đổi route hoặc query */}
         <ScrollToTop />
 
         <Routes>
-          {/* ===== USER ===== */}
+          {/* HOME */}
           <Route
             path="/"
             element={
@@ -107,6 +133,8 @@ export default function App() {
               </UserLayout>
             }
           />
+
+          {/* USER ROUTES */}
           <Route path="/shoplist" element={<UserLayout><ShopList /></UserLayout>} />
           <Route path="/collection" element={<UserLayout><Collection /></UserLayout>} />
           <Route path="/contentcollection" element={<UserLayout><ContentCollection /></UserLayout>} />
@@ -129,7 +157,7 @@ export default function App() {
           <Route path="/comingsoon" element={<UserLayout><ComingSoon /></UserLayout>} />
           <Route path="/notfound" element={<UserLayout><NotFound /></UserLayout>} />
 
-          {/* ===== ADMIN ===== */}
+          {/* ADMIN */}
           <Route
             path="/admin/*"
             element={
@@ -147,38 +175,20 @@ export default function App() {
             <Route path="coupons" element={<AdminCoupons />} />
           </Route>
 
-          <Route
-            path="/admin-login"
-            element={
-              <AdminAuthProvider>
-                <AdminLogin />
-              </AdminAuthProvider>
-            }
-          />
-
+          <Route path="/admin-login" element={<AdminAuthProvider><AdminLogin /></AdminAuthProvider>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
 
-        {/* 🔔 Toast toàn cục */}
         <Toaster
           position="top-right"
-          containerStyle={{
-            position: "fixed",
-            top: 16,
-            right: 16,
-            zIndex: 999999,
-          }}
+          containerStyle={{ position: "fixed", top: 16, right: 16, zIndex: 999999 }}
           toastOptions={{
             duration: 2500,
-            style: {
-              background: "#111",
-              color: "#fff",
-              borderRadius: "8px",
-              fontSize: "14px",
-            },
+            style: { background: "#111", color: "#fff", borderRadius: "8px", fontSize: "14px" },
             iconTheme: { primary: "#D6001C", secondary: "#fff" },
           }}
         />
+
       </Router>
     </AppProviders>
   );
