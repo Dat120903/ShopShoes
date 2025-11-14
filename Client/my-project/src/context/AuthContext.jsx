@@ -8,39 +8,33 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem("token") || null);
   const [loading, setLoading] = useState(true);
 
-  // 🧠 Load user từ localStorage (cả nội bộ + Fumee)
+  // ============================================
+  // 🚀 LOAD USER LÚC RELOAD TRANG
+  // ============================================
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
-    const fumeeToken = localStorage.getItem("fumeesoft_token");
     const storedUser = localStorage.getItem("user");
 
-    // Nếu đã có user lưu sẵn (nội bộ hoặc Fumee) thì set luôn
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-
-    if (storedToken) {
+    if (storedToken && storedUser) {
       setToken(storedToken);
-    }
-
-    // Không có token mà vẫn có fumeeToken thì vẫn coi là đang login
-    if (!storedToken && fumeeToken && storedUser) {
       setUser(JSON.parse(storedUser));
     }
 
     setLoading(false);
   }, []);
 
-  // 🧩 Đăng nhập nội bộ
-  const login = async (token) => {
+  // ============================================
+  // 🚀 ĐĂNG NHẬP NỘI BỘ
+  // ============================================
+  const login = async (receivedToken) => {
     try {
-      const decoded = jwtDecode(token);
+      const decoded = jwtDecode(receivedToken);
       const userId = decoded.id || decoded.userId || decoded._id;
 
       const res = await fetch(
         `https://thanhdatshoes.id.vn/api/auth/user/${userId}`,
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${receivedToken}` },
         }
       );
 
@@ -52,9 +46,11 @@ export const AuthProvider = ({ children }) => {
         role: decoded.role || "user",
       };
 
+      // Lưu vào state + local
       setUser(currentUser);
-      setToken(token);
-      localStorage.setItem("token", token);
+      setToken(receivedToken);
+
+      localStorage.setItem("token", receivedToken);
       localStorage.setItem("user", JSON.stringify(currentUser));
       localStorage.setItem("userId", userId);
 
@@ -64,33 +60,58 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // 🧩 Đăng xuất (nội bộ + Fumee)
+  // ============================================
+  // 🚀 ĐĂNG NHẬP BẰNG FUMEE
+  // ============================================
+  const loginByFumee = async (fumeeToken) => {
+    try {
+      // Gửi token Fumee → BE xử lý → trả về token nội bộ
+      const res = await fetch("https://thanhdatshoes.id.vn/api/auth/fumee-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: fumeeToken }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.token) {
+        console.error("❌ Fumee login failed:", data);
+        return;
+      }
+
+      // → Login bằng token nội bộ
+      await login(data.token);
+
+    } catch (err) {
+      console.error("❌ Lỗi login Fumee:", err);
+    }
+  };
+
+  // ============================================
+  // 🚀 ĐĂNG XUẤT
+  // ============================================
   const logout = async () => {
     setUser(null);
     setToken(null);
 
-    // Xoá token nội bộ
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     localStorage.removeItem("userId");
 
-    // Xoá token Fumee
+    // xoá cả fumee token nếu còn
     localStorage.removeItem("fumeesoft_token");
-
-    // Xoá user (dùng chung cho cả 2)
     localStorage.removeItem("fumee_user");
-    localStorage.removeItem("user");
 
-    // Xoá giỏ hàng
+    // xoá giỏ
     localStorage.removeItem("cart");
 
     window.dispatchEvent(new Event("storage"));
-
-    // Reload nhẹ để UI reset hẳn
-    setTimeout(() => window.location.reload(), 120);
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, loading }}>
+    <AuthContext.Provider
+      value={{ user, token, login, loginByFumee, logout, loading }}
+    >
       {!loading && children}
     </AuthContext.Provider>
   );

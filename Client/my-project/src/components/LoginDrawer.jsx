@@ -9,6 +9,9 @@ export default function LoginDrawer({ isOpen, onClose }) {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  // ==============================
+  // LOGIN NỘI BỘ
+  // ==============================
   const handleLogin = async (e) => {
     e.preventDefault();
     const username = e.target[0].value.trim();
@@ -27,10 +30,12 @@ export default function LoginDrawer({ isOpen, onClose }) {
       const data = await res.json();
       if (!res.ok) return toast.error(data.message || "Đăng nhập thất bại!");
 
+      // Lưu token qua AuthContext
       login(data.token);
       toast.success("🎉 Đăng nhập thành công!");
       onClose();
 
+      // Điều hướng
       const decoded = JSON.parse(atob(data.token.split(".")[1]));
       navigate(decoded.role === "admin" ? "/admin/dashboard" : "/");
     } catch (err) {
@@ -39,6 +44,9 @@ export default function LoginDrawer({ isOpen, onClose }) {
     }
   };
 
+  // ==============================
+  // ĐĂNG KÝ NỘI BỘ
+  // ==============================
   const handleRegister = async (e) => {
     e.preventDefault();
     const username = e.target[0].value.trim();
@@ -56,7 +64,7 @@ export default function LoginDrawer({ isOpen, onClose }) {
 
     if (!strongPassword.test(password))
       return toast.error(
-        "Mật khẩu phải có ít nhất 8 ký tự, bao gồm 1 chữ in hoa, 1 số và 1 ký tự đặc biệt!"
+        "Mật khẩu phải có ít nhất 8 ký tự, gồm chữ in hoa, số & ký tự đặc biệt!"
       );
 
     if (password !== confirmPassword)
@@ -73,7 +81,7 @@ export default function LoginDrawer({ isOpen, onClose }) {
       if (!res.ok) return toast.error(data.message || "Đăng ký thất bại!");
 
       e.target.reset();
-      toast.success("🎉 Đăng ký thành công! Vui lòng đăng nhập lại.");
+      toast.success("🎉 Đăng ký thành công! Vui lòng đăng nhập.");
       setIsRegister(false);
     } catch (err) {
       console.error("❌ Lỗi đăng ký:", err);
@@ -81,16 +89,27 @@ export default function LoginDrawer({ isOpen, onClose }) {
     }
   };
 
+  // ==============================
+  // LOGIN QUA FUMEE
+  // ==============================
+  const handleFumeeLogin = () => {
+    window.location.href =
+      "https://id.fumeesoft.com/?url_callback=https://thanhdatshoes.id.vn";
+  };
+
   return (
     <>
-      {/* OVERLAY */}
+      {/* NỀN MỜ */}
       {isOpen && (
-        <div onClick={onClose} className="fixed inset-0 bg-black/40 z-[10000]"></div>
+        <div
+          onClick={onClose}
+          className="fixed inset-0 bg-black/40 z-[10000]"
+        ></div>
       )}
 
       {/* DRAWER */}
       <div
-        className={`fixed top-0 right-0 h-full w-[420px] bg-white shadow-lg z-[10001] transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 right-0 h-full w-[420px] bg-white shadow-lg z-[10001] transform transition-transform duration-300 ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -113,7 +132,7 @@ export default function LoginDrawer({ isOpen, onClose }) {
           <div className="w-[80%] max-w-[360px] mt-10">
             {!isRegister ? (
               <>
-                {/* 🔑 FORM ĐĂNG NHẬP */}
+                {/* FORM LOGIN */}
                 <form className="space-y-5" onSubmit={handleLogin}>
                   <input
                     type="text"
@@ -134,24 +153,22 @@ export default function LoginDrawer({ isOpen, onClose }) {
                   </button>
                 </form>
 
-                {/* ——— HOẶC ——— */}
+                {/* Divider */}
                 <div className="flex items-center gap-3 my-6">
                   <span className="flex-1 h-px bg-gray-300" />
                   <span className="text-gray-500 text-sm">Hoặc</span>
                   <span className="flex-1 h-px bg-gray-300" />
                 </div>
 
-                {/* 🔥 NÚT ĐĂNG NHẬP QUA FUMEE */}
+                {/* LOGIN FUMEE */}
                 <button
-                  onClick={() =>
-                    (window.location.href =
-                      "https://id.fumeesoft.com/?url_callback=thanhdatshoes.id.vn")
-                  }
+                  onClick={handleFumeeLogin}
                   className="w-full py-3 bg-[#D6001C] text-white font-semibold rounded-md hover:bg-[#b10017] transition"
                 >
                   Đăng nhập qua Fumee
                 </button>
 
+                {/* REGISTER LINK */}
                 <p className="text-center text-sm mt-6 text-gray-700">
                   Bạn chưa có tài khoản?{" "}
                   <button
@@ -164,7 +181,7 @@ export default function LoginDrawer({ isOpen, onClose }) {
               </>
             ) : (
               <>
-                {/* 🆕 FORM ĐĂNG KÝ */}
+                {/* FORM REGISTER */}
                 <form className="space-y-5" onSubmit={handleRegister}>
                   <input
                     type="text"

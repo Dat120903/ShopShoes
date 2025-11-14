@@ -24,15 +24,18 @@ export default function Navbar() {
   const { cartItems, setIsCartOpen } = useCart();
   const totalQty = cartItems.reduce((sum, item) => sum + item.qty, 0);
 
-  const handleUserClick = () => {
-    const token = localStorage.getItem("token");
-    const fumeeToken = localStorage.getItem("fumeesoft_token");
+  // ===============================
+  // 🔐 KIỂM TRA LOGIN
+  // ===============================
+  const isInternalLoggedIn = !!localStorage.getItem("token");
+  const isFumeeLoggedIn = !!localStorage.getItem("fumeesoft_token");
+  const isLoggedIn = isInternalLoggedIn || isFumeeLoggedIn;
 
-    if (token || fumeeToken) {
-      // Đã login (nội bộ hoặc Fumee)
+  // Khi ấn vào icon User:
+  const handleUserClick = () => {
+    if (isLoggedIn) {
       navigate("/account");
     } else {
-      // Chưa login → mở drawer
       setLoginOpen(true);
     }
   };
@@ -41,13 +44,10 @@ export default function Navbar() {
     <>
       <header className="fixed top-0 left-0 right-0 z-[10000] bg-white border-b border-gray-200 shadow-sm h-[100px] flex items-center">
         <div className="max-w-[1410px] mx-auto px-4 sm:px-6 lg:px-8 w-full flex items-center justify-between">
+
           {/* LOGO */}
           <Link to="/" className="shrink-0">
-            <img
-              src={LogoImage}
-              alt="EVASHOES"
-              className="w-[150px] sm:w-[180px] h-auto"
-            />
+            <img src={LogoImage} alt="EVASHOES" className="w-[150px] sm:w-[180px] h-auto" />
           </Link>
 
           {/* MENU LINKS */}
@@ -68,13 +68,17 @@ export default function Navbar() {
 
           {/* ICONS RIGHT */}
           <div className="flex items-center gap-4 sm:gap-6">
+
             {/* 🔍 Search */}
             <button onClick={() => setSearchOpen(true)}>
               <Search className="w-5 h-5 hover:text-[#D6001C]" />
             </button>
 
-            {/* 👤 User */}
-            <button onClick={handleUserClick} className="hover:text-[#D6001C]">
+            {/* 👤 USER */}
+            <button 
+              onClick={handleUserClick} 
+              className="hover:text-[#D6001C]"
+            >
               <User className="w-5 h-5" />
             </button>
 
@@ -96,7 +100,7 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* ☰ Mobile Menu */}
+            {/* MOBILE MENU */}
             <button>
               <Menu className="w-6 h-6 hover:text-[#D6001C]" />
             </button>
@@ -105,15 +109,17 @@ export default function Navbar() {
       </header>
 
       {/* OVERLAYS / DRAWERS */}
-      <SearchOverlay
-        isOpen={searchOpen}
-        onClose={() => setSearchOpen(false)}
-      />
+      <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+
       <WishlistDrawer
         isOpen={wishlistOpen}
         onClose={() => setWishlistOpen(false)}
       />
-      <LoginDrawer isOpen={loginOpen} onClose={() => setLoginOpen(false)} />
+
+      <LoginDrawer
+        isOpen={loginOpen}
+        onClose={() => setLoginOpen(false)}
+      />
     </>
   );
 }

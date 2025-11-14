@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
-// COMPONENTS
+// Components
 import Navbar from "./components/Navbar";
 import CartDrawer from "./components/CartDrawer";
 import NewsletterPopup from "./components/NewsletterPopup";
@@ -19,7 +19,7 @@ import Limited from "./components/Limited";
 import Instagram from "./components/Instagram";
 import ServiceSection from "./components/ServiceSection";
 
-// PAGES
+// Pages
 import ShopList from "./page/ShopList/ShopList";
 import Collection from "./page/Collection/Collection";
 import ContentCollection from "./page/Collection/ContentCollection";
@@ -42,7 +42,7 @@ import AccountDetails from "./page/Account/AccountDetails";
 import ComingSoon from "./page/ComingSoon/ComingSoon";
 import NotFound from "./page/NotFound/NotFound";
 
-// ADMIN
+// Admin
 import AdminLayout from "./admin/AdminLayout";
 import AdminDashboard from "./admin/AdminDashboard";
 import AdminProducts from "./admin/AdminProducts";
@@ -52,7 +52,7 @@ import AdminCoupons from "./admin/AdminCoupons";
 import AdminRoute from "./routes/AdminRoute";
 import AdminLogin from "./admin/AdminLogin";
 
-// CONTEXT
+// Context
 import AppProviders from "./context/Providers.jsx";
 import { AdminAuthProvider } from "./context/AdminAuthContext.jsx";
 
@@ -91,21 +91,30 @@ export default function App() {
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
 
-    if (token) {
-      localStorage.setItem("fumeesoft_token", token);
+    if (!token) return;
 
-      try {
-        const payload = JSON.parse(atob(token.split(".")[1]));
-        localStorage.setItem("user", JSON.stringify(payload));
-      } catch (e) {
-        console.error("Token Fumee không hợp lệ:", e);
-      }
+    // Gửi token Fumee lên server → nhận token nội bộ
+    fetch("https://thanhdatshoes.id.vn/api/auth/fumee-login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("user", JSON.stringify(data.user));
+          localStorage.setItem("fumeesoft_token", token);
+        }
 
-      // XÓA token khỏi URL
-      const url = new URL(window.location.href);
-      url.searchParams.delete("token");
-      window.history.replaceState({}, document.title, url.pathname);
-    }
+        // Xoá query token khỏi URL
+        const url = new URL(window.location.href);
+        url.searchParams.delete("token");
+        window.history.replaceState({}, document.title, url.pathname);
+
+        // Load lại trang
+        window.location.reload();
+      });
   }, []);
 
 
@@ -188,7 +197,6 @@ export default function App() {
             iconTheme: { primary: "#D6001C", secondary: "#fff" },
           }}
         />
-
       </Router>
     </AppProviders>
   );
