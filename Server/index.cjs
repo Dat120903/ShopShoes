@@ -13,6 +13,7 @@ const userRoutes = require("./routes/userRoutes");
 const adminAuthRoutes = require("./routes/adminAuthRoutes");
 const adminStatsRoutes = require("./routes/adminStats");
 const couponRoutes = require("./routes/couponRoutes");
+const authRoutes = require("./routes/auth");
 
 // 🧩 Models
 const User = require("./models/User");
@@ -39,6 +40,8 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/admin", adminAuthRoutes);
 app.use("/api/admin", adminStatsRoutes);
 app.use("/api/coupons", couponRoutes); // ✅ route mã giảm giá
+app.use("/api/auth", authRoutes);
+
 
 // ================================
 // 🧩 Tạo admin mặc định (chạy 1 lần duy nhất)

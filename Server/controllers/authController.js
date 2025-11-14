@@ -176,27 +176,41 @@ exports.updateWishlist = async (req, res) => {
   try {
     const { userId } = req.params;
     const { product } = req.body;
+
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: "User không tồn tại" });
 
     const exists = user.wishlist.some(
-      (item) => item.productId?.toString() === product.productId
+      (item) =>
+        item.productId?.toString() === product.productId.toString()
     );
 
     if (exists) {
       user.wishlist = user.wishlist.filter(
-        (item) => item.productId?.toString() !== product.productId
+        (item) =>
+          item.productId?.toString() !== product.productId.toString()
       );
     } else {
-      user.wishlist.push(product);
+      user.wishlist.push({
+        productId: product.productId,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        category: product.category,
+      });
     }
 
     await user.save();
-    res.json({ message: "Cập nhật wishlist thành công", wishlist: user.wishlist });
+
+    res.json({
+      message: "Cập nhật wishlist thành công",
+      wishlist: user.wishlist,
+    });
   } catch (err) {
     res.status(500).json({ message: "Lỗi server", error: err.message });
   }
 };
+
 
 // ========================
 // 🛒 Giỏ hàng
