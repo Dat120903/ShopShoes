@@ -1,37 +1,32 @@
 const express = require("express");
 const cors = require("cors");
-require("dotenv").config(); // nạp biến môi trường
-require("./db"); // kết nối MongoDB
+require("dotenv").config();
+require("./db");
 
-// 🧩 Import routes
+// ROUTES
 const orderRoutes = require("./routes/orderRoutes");
 const productRoutes = require("./routes/productRoutes");
-const searchRoutes = require("./routes/search");
-const authRoutes = require("./routes/authRoutes");
+const searchRoute = require("./routes/search");
+const authRoutes = require("./routes/authRoutes");   // CHỈ DÙNG CÁI NÀY
 const cartRoutes = require("./routes/cartRoutes");
 const userRoutes = require("./routes/userRoutes");
 const adminAuthRoutes = require("./routes/adminAuthRoutes");
 const adminStatsRoutes = require("./routes/adminStats");
 const couponRoutes = require("./routes/couponRoutes");
 
-// 🧩 Models
 const User = require("./models/User");
 const bcrypt = require("bcryptjs");
 
 const app = express();
-
-// Middlewares
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const PORT = process.env.PORT || 5000;
 
-// ================================
-// 📦 ROUTES
-// ================================
+// API
 app.use("/api/products", productRoutes);
-app.use("/api/search", searchRoutes);
+app.use("/api/search", searchRoute);
 app.use("/api/auth", authRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/users", userRoutes);
@@ -40,9 +35,7 @@ app.use("/api/admin", adminAuthRoutes);
 app.use("/api/admin", adminStatsRoutes);
 app.use("/api/coupons", couponRoutes);
 
-// ================================
-// 🧩 Tạo admin mặc định (chạy 1 lần duy nhất)
-// ================================
+// ADMIN MẶC ĐỊNH
 (async () => {
   try {
     const adminExists = await User.findOne({ username: "admin" });
@@ -53,25 +46,19 @@ app.use("/api/coupons", couponRoutes);
         password: hashed,
         role: "admin",
       });
-      console.log("✅ Đã tạo admin mặc định (admin / 123456)");
+      console.log("Đã tạo admin mặc định");
     } else {
-      console.log("ℹ️ Admin mặc định đã tồn tại.");
+      console.log("Admin mặc định đã tồn tại");
     }
   } catch (err) {
-    console.error("❌ Lỗi khi tạo admin mặc định:", err);
+    console.error("Lỗi tạo admin:", err);
   }
 })();
 
-// ================================
-// 🧩 Test API
-// ================================
 app.get("/", (req, res) => {
-  res.json({ message: "✅ ShoeServer + MongoDB đang hoạt động!" });
+  res.json({ msg: "Server OK" });
 });
 
-// ================================
-// 🚀 Khởi động server
-// ================================
 app.listen(PORT, () => {
-  console.log(`🚀 Server chạy tại http://localhost:${PORT}`);
+  console.log(`Server chạy tại http://localhost:${PORT}`);
 });
