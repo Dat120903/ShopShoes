@@ -1,19 +1,18 @@
 const express = require("express");
 const cors = require("cors");
-require("dotenv").config(); // ✅ nạp biến môi trường
-require("./db"); // ✅ Kết nối MongoDB
+require("dotenv").config(); // nạp biến môi trường
+require("./db"); // kết nối MongoDB
 
 // 🧩 Import routes
 const orderRoutes = require("./routes/orderRoutes");
 const productRoutes = require("./routes/productRoutes");
-const searchRoute = require("./routes/search");
+const searchRoutes = require("./routes/search");
 const authRoutes = require("./routes/authRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const userRoutes = require("./routes/userRoutes");
 const adminAuthRoutes = require("./routes/adminAuthRoutes");
 const adminStatsRoutes = require("./routes/adminStats");
 const couponRoutes = require("./routes/couponRoutes");
-const authRoutes = require("./routes/auth");
 
 // 🧩 Models
 const User = require("./models/User");
@@ -21,10 +20,10 @@ const bcrypt = require("bcryptjs");
 
 const app = express();
 
-// 🧠 Middlewares
+// Middlewares
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); // ✅ hỗ trợ form-urlencoded nếu sau này dùng
+app.use(express.urlencoded({ extended: true }));
 
 const PORT = process.env.PORT || 5000;
 
@@ -32,16 +31,14 @@ const PORT = process.env.PORT || 5000;
 // 📦 ROUTES
 // ================================
 app.use("/api/products", productRoutes);
-app.use("/api/search", searchRoute);
+app.use("/api/search", searchRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/admin", adminAuthRoutes);
 app.use("/api/admin", adminStatsRoutes);
-app.use("/api/coupons", couponRoutes); // ✅ route mã giảm giá
-app.use("/api/auth", authRoutes);
-
+app.use("/api/coupons", couponRoutes);
 
 // ================================
 // 🧩 Tạo admin mặc định (chạy 1 lần duy nhất)
