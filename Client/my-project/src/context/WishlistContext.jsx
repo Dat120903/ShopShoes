@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { API_BASE } from "../config/api";
 
 const WishlistContext = createContext();
 
@@ -6,6 +7,7 @@ export const WishlistProvider = ({ children }) => {
   const [wishlist, setWishlist] = useState([]);
   const [userId, setUserId] = useState(localStorage.getItem("userId") || null);
 
+  // Đồng bộ userId khi login / logout
   useEffect(() => {
     const syncUser = () => setUserId(localStorage.getItem("userId") || null);
     window.addEventListener("storage", syncUser);
@@ -13,19 +15,35 @@ export const WishlistProvider = ({ children }) => {
     return () => window.removeEventListener("storage", syncUser);
   }, []);
 
-  // 👉 LOAD WISHLIST
+  // 👉 LOAD WISHLIST KHI CÓ userId
   useEffect(() => {
     if (!userId) {
       setWishlist([]);
       return;
     }
 
-    fetch(`https://thanhdatshoes.id.vn/api/auth/wishlist/${userId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.wishlist) setWishlist(data.wishlist);
-      })
-      .catch((err) => console.error("Lỗi lấy wishlist:", err));
+    const fetchWishlist = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/users/wishlist/${userId}`);
+
+        if (!res.ok) {
+          console.error("❌ Lỗi lấy wishlist:", res.status);
+          setWishlist([]);
+          return;
+        }
+
+        const data = await res.json();
+        if (Array.isArray(data.wishlist)) {
+          setWishlist(data.wishlist);
+        } else {
+          setWishlist([]);
+        }
+      } catch (err) {
+        console.error("Lỗi lấy wishlist:", err);
+      }
+    };
+
+    fetchWishlist();
   }, [userId]);
 
   // 👉 TOGGLE WISHLIST
@@ -39,7 +57,7 @@ export const WishlistProvider = ({ children }) => {
 
     const payload = {
       product: {
-        productId: item._id, // FIX CHUẨN
+        productId: item.productId || item._id,
         name: item.name,
         price: item.price,
         image: item.image,
@@ -48,18 +66,15 @@ export const WishlistProvider = ({ children }) => {
     };
 
     try {
-      const res = await fetch(
-        `https://thanhdatshoes.id.vn/api/auth/wishlist/${uid}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }
-      );
+      const res = await fetch(`${API_BASE}/users/wishlist/${uid}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
       const data = await res.json();
 
-      if (res.ok) {
+      if (res.ok && Array.isArray(data.wishlist)) {
         setWishlist(data.wishlist);
       } else {
         console.error("❌ Lỗi cập nhật wishlist:", data.message);

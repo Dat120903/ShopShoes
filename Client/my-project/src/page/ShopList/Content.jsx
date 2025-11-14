@@ -3,6 +3,7 @@ import { Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useWishlist } from "../../context/WishlistContext";
 import { useAuth } from "../../context/AuthContext";
+import { API_BASE } from "../../config/api";
 
 export default function Content() {
   const [products, setProducts] = useState([]);
@@ -19,7 +20,7 @@ export default function Content() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("https://thanhdatshoes.id.vn/api/products")
+    fetch(`${API_BASE}/products`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
@@ -57,12 +58,8 @@ export default function Content() {
     currentPage * perPage
   );
 
-  // 🔥 SỬA CHỖ 1
-  const isLiked = (productId) => {
-    return wishlist.some(
-      (item) => item.productId === productId || item._id === productId
-    );
-  };
+  const isLiked = (productId) =>
+    wishlist.some((item) => item.productId === productId);
 
   return (
     <section className="w-full">
@@ -95,11 +92,12 @@ export default function Content() {
                         e.stopPropagation();
 
                         if (!token && !localStorage.getItem("fumeesoft_token")) {
-                          window.dispatchEvent(new CustomEvent("open-login"));
+                          window.dispatchEvent(
+                            new CustomEvent("open-login")
+                          );
                           return;
                         }
 
-                        // 🔥 SỬA CHỖ 2
                         toggleWishlist({
                           productId: item._id,
                           name: item.name,
