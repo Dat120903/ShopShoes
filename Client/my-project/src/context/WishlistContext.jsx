@@ -1,79 +1,71 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { API_BASE } from "../config/api";
-
-
 
 const WishlistContext = createContext();
 
 export const WishlistProvider = ({ children }) => {
   const [wishlist, setWishlist] = useState([]);
-  const [userId, setUserId] = useState(localStorage.getItem("userId"));
+  const [userId, setUserId] = useState(localStorage.getItem("userId") || null);
 
-  // 🧭 Theo dõi thay đổi của localStorage (đăng nhập / đăng xuất)
+  // 🧠 Nghe thay đổi userId (login/logout)
   useEffect(() => {
-    const checkUser = () => {
-      const id = localStorage.getItem("userId");
-      setUserId(id);
-    };
+    const syncUser = () => setUserId(localStorage.getItem("userId") || null);
 
-    // khi có thay đổi từ login/logout
-    window.addEventListener("storage", checkUser);
-    checkUser(); // kiểm tra lần đầu
+    window.addEventListener("storage", syncUser);
+    syncUser(); // lần đầu
 
-    return () => window.removeEventListener("storage", checkUser);
+    return () => window.removeEventListener("storage", syncUser);
   }, []);
 
-  // 📦 Lấy wishlist từ server khi đăng nhập
+  // 🧠 Load wishlist khi có userId
   useEffect(() => {
     if (!userId) {
-      setWishlist([]); // ✅ clear khi logout
+      setWishlist([]);
       return;
     }
 
-fetch(`https://thanhdatshoes.id.vn/api/auth/wishlist/${userId}`)
+    fetch(`https://thanhdatshoes.id.vn/api/users/wishlist/${userId}`)
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data)) setWishlist(data);
-        else if (data.wishlist) setWishlist(data.wishlist);
+        if (data.wishlist) setWishlist(data.wishlist);
       })
       .catch((err) => console.error("Lỗi lấy wishlist:", err));
   }, [userId]);
 
-  // ✅ Toggle yêu thích (thêm hoặc xóa)
+  // ❤️ Toggle wishlist
   const toggleWishlist = async (product) => {
-    const currentId = localStorage.getItem("userId");
-    if (!currentId) {
+    const uid = localStorage.getItem("userId");
+
+    if (!uid) {
       alert("Vui lòng đăng nhập để thêm sản phẩm yêu thích!");
       return;
     }
 
     try {
-const res = await fetch(`https://thanhdatshoes.id.vn/api/auth/wishlist/${currentId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ product }),
-      });
+      const res = await fetch(
+        `https://thanhdatshoes.id.vn/api/users/wishlist/${uid}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ product }),
+        }
+      );
 
       const data = await res.json();
       if (res.ok) {
         setWishlist(data.wishlist);
       } else {
-        console.error("Lỗi cập nhật wishlist:", data.message);
+        console.error("❌ Lỗi cập nhật wishlist:", data.message);
       }
     } catch (err) {
-      console.error("Lỗi fetch wishlist:", err);
+      console.error("❌ Wishlist fetch failed:", err);
     }
   };
-
-  // 🔹 Hàm clear thủ công (có thể dùng thêm trong logout nếu muốn)
-  const clearWishlist = () => setWishlist([]);
 
   return (
     <WishlistContext.Provider
       value={{
         wishlist,
         toggleWishlist,
-        clearWishlist,
       }}
     >
       {children}
@@ -81,5 +73,4 @@ const res = await fetch(`https://thanhdatshoes.id.vn/api/auth/wishlist/${current
   );
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const useWishlist = () => useContext(WishlistContext);

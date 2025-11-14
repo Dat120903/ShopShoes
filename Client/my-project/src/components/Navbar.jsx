@@ -6,6 +6,7 @@ import SearchOverlay from "./SearchOverlay";
 import WishlistDrawer from "./WishlistDrawer";
 import LoginDrawer from "./LoginDrawer";
 import { useCart } from "../context/CartProvider.jsx";
+import { useAuth } from "../context/AuthContext.jsx";
 
 const navLinks = [
   { label: "HÀNG MỚI", href: "/comingsoon" },
@@ -20,24 +21,17 @@ export default function Navbar() {
   const [wishlistOpen, setWishlistOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
   const navigate = useNavigate();
-
-  const { cartItems, setIsCartOpen } = useCart();
-  const totalQty = cartItems.reduce((sum, item) => sum + item.qty, 0);
+  const { totalQty, setIsCartOpen } = useCart();
+  const { user } = useAuth();
 
   // ===============================
-  // 🔐 KIỂM TRA LOGIN
+  // 🔐 KIỂM TRA ĐÃ LOGIN HAY CHƯA
   // ===============================
-  const isInternalLoggedIn = !!localStorage.getItem("token");
-  const isFumeeLoggedIn = !!localStorage.getItem("fumeesoft_token");
-  const isLoggedIn = isInternalLoggedIn || isFumeeLoggedIn;
+  const isLoggedIn = !!user;
 
-  // Khi ấn vào icon User:
   const handleUserClick = () => {
-    if (isLoggedIn) {
-      navigate("/account");
-    } else {
-      setLoginOpen(true);
-    }
+    if (isLoggedIn) navigate("/account");
+    else setLoginOpen(true);
   };
 
   return (
@@ -69,25 +63,22 @@ export default function Navbar() {
           {/* ICONS RIGHT */}
           <div className="flex items-center gap-4 sm:gap-6">
 
-            {/* 🔍 Search */}
+            {/* 🔍 SEARCH */}
             <button onClick={() => setSearchOpen(true)}>
               <Search className="w-5 h-5 hover:text-[#D6001C]" />
             </button>
 
             {/* 👤 USER */}
-            <button 
-              onClick={handleUserClick} 
-              className="hover:text-[#D6001C]"
-            >
+            <button onClick={handleUserClick} className="hover:text-[#D6001C]">
               <User className="w-5 h-5" />
             </button>
 
-            {/* ❤️ Wishlist */}
+            {/* ❤️ WISHLIST */}
             <button onClick={() => setWishlistOpen(true)}>
               <Heart className="w-5 h-5 hover:text-[#D6001C]" />
             </button>
 
-            {/* 🛒 Cart */}
+            {/* 🛒 CART */}
             <div
               className="relative cursor-pointer"
               onClick={() => setIsCartOpen(true)}
@@ -100,7 +91,7 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* MOBILE MENU */}
+            {/* MOBILE ICON */}
             <button>
               <Menu className="w-6 h-6 hover:text-[#D6001C]" />
             </button>

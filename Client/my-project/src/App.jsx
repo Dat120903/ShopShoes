@@ -82,39 +82,51 @@ const UserLayout = ({ children }) => {
 
 
 // ============================
-// APP CHÍNH
+// 🚀 APP CHÍNH
 // ============================
 export default function App() {
 
-  // 🧩 XỬ LÝ TOKEN FUMEE TRẢ VỀ
+  // ========================================================
+  // 🚀 XỬ LÝ TOKEN FUMEE TRẢ VỀ — chuẩn nhất (KHÔNG gọi BE)
+  // ========================================================
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
 
     if (!token) return;
 
-    // Gửi token Fumee lên server → nhận token nội bộ
-    fetch("https://thanhdatshoes.id.vn/api/auth/fumee-login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.token) {
-          localStorage.setItem("token", data.token);
-          localStorage.setItem("user", JSON.stringify(data.user));
-          localStorage.setItem("fumeesoft_token", token);
-        }
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
 
-        // Xoá query token khỏi URL
-        const url = new URL(window.location.href);
-        url.searchParams.delete("token");
-        window.history.replaceState({}, document.title, url.pathname);
+      // Fumee có trường sub = userId duy nhất
+      const userId = payload.sub;
 
-        // Load lại trang
-        window.location.reload();
-      });
+      const userData = {
+        _id: userId,
+        username: payload.username || payload.email,
+        fullName: payload.displayName || "Người dùng",
+        email: payload.email,
+        phone: payload.phone,
+        role: "user",
+        loginType: "fumee",
+      };
+
+      // Lưu như login nội bộ
+      localStorage.setItem("token", token);
+      localStorage.setItem("userId", userId);
+      localStorage.setItem("user", JSON.stringify(userData));
+      localStorage.setItem("fumeesoft_token", token);
+
+      // Thông báo CartProvider load lại đúng giỏ hàng
+      window.dispatchEvent(new Event("auth-changed"));
+    } catch (err) {
+      console.error("❌ Lỗi decode Fumee token:", err);
+    }
+
+    // Xoá token khỏi URL
+    const url = new URL(window.location.href);
+    url.searchParams.delete("token");
+    window.history.replaceState({}, document.title, url.pathname);
   }, []);
 
 
@@ -124,6 +136,7 @@ export default function App() {
         <ScrollToTop />
 
         <Routes>
+
           {/* HOME */}
           <Route
             path="/"
@@ -186,6 +199,7 @@ export default function App() {
 
           <Route path="/admin-login" element={<AdminAuthProvider><AdminLogin /></AdminAuthProvider>} />
           <Route path="*" element={<NotFound />} />
+
         </Routes>
 
         <Toaster

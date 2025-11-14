@@ -33,9 +33,7 @@ export const AuthProvider = ({ children }) => {
 
       const res = await fetch(
         `https://thanhdatshoes.id.vn/api/auth/user/${userId}`,
-        {
-          headers: { Authorization: `Bearer ${receivedToken}` },
-        }
+        { headers: { Authorization: `Bearer ${receivedToken}` } }
       );
 
       const data = await res.json();
@@ -46,13 +44,13 @@ export const AuthProvider = ({ children }) => {
         role: decoded.role || "user",
       };
 
-      // Lưu vào state + local
+      // Lưu user vào state + localStorage
       setUser(currentUser);
       setToken(receivedToken);
 
       localStorage.setItem("token", receivedToken);
       localStorage.setItem("user", JSON.stringify(currentUser));
-      localStorage.setItem("userId", userId);
+      localStorage.setItem("userId", userId); // 🔥 QUAN TRỌNG: dùng cho giỏ hàng
 
       window.dispatchEvent(new Event("storage"));
     } catch (err) {
@@ -65,7 +63,7 @@ export const AuthProvider = ({ children }) => {
   // ============================================
   const loginByFumee = async (fumeeToken) => {
     try {
-      // Gửi token Fumee → BE xử lý → trả về token nội bộ
+      // Gửi token Fumee → nhận token BE nội bộ
       const res = await fetch("https://thanhdatshoes.id.vn/api/auth/fumee-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -79,9 +77,30 @@ export const AuthProvider = ({ children }) => {
         return;
       }
 
-      // → Login bằng token nội bộ
-      await login(data.token);
+      // decode token nội bộ để lấy userId
+      const decoded = jwtDecode(data.token);
+      const userId = decoded.id || decoded.userId || decoded._id;
 
+      // 🟢 Tạo user object
+      const fumeeUser = {
+        _id: userId,
+        username: data.user?.displayName || data.user?.username || "User Fumee",
+        fullName: data.user?.displayName,
+        phone: data.user?.phone,
+        email: data.user?.email,
+        role: "user",
+      };
+
+      // 🔥 Cực kỳ quan trọng: set vào localStorage để CartProvider nhận được userId
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("fumeesoft_token", fumeeToken);
+      localStorage.setItem("user", JSON.stringify(fumeeUser));
+      localStorage.setItem("userId", userId);
+
+      setUser(fumeeUser);
+      setToken(data.token);
+
+      window.dispatchEvent(new Event("storage"));
     } catch (err) {
       console.error("❌ Lỗi login Fumee:", err);
     }
@@ -98,19 +117,27 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("user");
     localStorage.removeItem("userId");
 
-    // xoá cả fumee token nếu còn
     localStorage.removeItem("fumeesoft_token");
     localStorage.removeItem("fumee_user");
 
-    // xoá giỏ
-    localStorage.removeItem("cart");
+    // xoá giỏ hàng theo user
+    Object.keys(localStorage).forEach((key) => {
+      if (key.startsWith("cart_user_")) localStorage.removeItem(key);
+    });
 
     window.dispatchEvent(new Event("storage"));
   };
 
   return (
     <AuthContext.Provider
-      value={{ user, token, login, loginByFumee, logout, loading }}
+      value={{
+        user,
+        token,
+        login,
+        loginByFumee,
+        logout,
+        loading,
+      }}
     >
       {!loading && children}
     </AuthContext.Provider>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -8,6 +8,16 @@ export default function LoginDrawer({ isOpen, onClose }) {
   const [isRegister, setIsRegister] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  // 🔥 LẮNG NGHE SỰ KIỆN TỪ NÚT ♥ (nếu chưa đăng nhập)
+  useEffect(() => {
+    const openLogin = () => {
+      setIsRegister(false);
+      onClose(false);
+    };
+    window.addEventListener("open-login", openLogin);
+    return () => window.removeEventListener("open-login", openLogin);
+  }, []);
 
   // ==============================
   // LOGIN NỘI BỘ
@@ -30,12 +40,16 @@ export default function LoginDrawer({ isOpen, onClose }) {
       const data = await res.json();
       if (!res.ok) return toast.error(data.message || "Đăng nhập thất bại!");
 
+      // 🔥 SỬA CHỖ 1 — LƯU TOKEN NGAY
+      localStorage.setItem("token", data.token);
+      window.dispatchEvent(new Event("storage"));
+
       // Lưu token qua AuthContext
-      login(data.token);
+      await login(data.token);
+
       toast.success("🎉 Đăng nhập thành công!");
       onClose();
 
-      // Điều hướng
       const decoded = JSON.parse(atob(data.token.split(".")[1]));
       navigate(decoded.role === "admin" ? "/admin/dashboard" : "/");
     } catch (err) {

@@ -44,9 +44,9 @@ const WishlistDrawer = ({ isOpen, onClose }) => {
             <div className="space-y-6">
               {wishlist.map((item) => (
                 <div
-                  key={item.productId || item._id}
+                  key={item._id}
                   onClick={() => {
-                    navigate(`/product/${item.productId || item._id}`);
+                    navigate(`/product/${item._id}`);
                     onClose();
                   }}
                   className="flex items-center gap-4 border-b border-gray-200 pb-4 cursor-pointer hover:bg-gray-50 transition-all duration-200"
