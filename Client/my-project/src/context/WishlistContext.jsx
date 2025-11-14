@@ -6,24 +6,21 @@ export const WishlistProvider = ({ children }) => {
   const [wishlist, setWishlist] = useState([]);
   const [userId, setUserId] = useState(localStorage.getItem("userId") || null);
 
-  // 🧠 Nghe thay đổi userId (login/logout)
   useEffect(() => {
     const syncUser = () => setUserId(localStorage.getItem("userId") || null);
-
     window.addEventListener("storage", syncUser);
-    syncUser(); // lần đầu
-
+    syncUser();
     return () => window.removeEventListener("storage", syncUser);
   }, []);
 
-  // 🧠 Load wishlist khi có userId
+  // 👉 LOAD WISHLIST
   useEffect(() => {
     if (!userId) {
       setWishlist([]);
       return;
     }
 
-    fetch(`https://thanhdatshoes.id.vn/api/users/wishlist/${userId}`)
+    fetch(`https://thanhdatshoes.id.vn/api/auth/wishlist/${userId}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.wishlist) setWishlist(data.wishlist);
@@ -31,26 +28,37 @@ export const WishlistProvider = ({ children }) => {
       .catch((err) => console.error("Lỗi lấy wishlist:", err));
   }, [userId]);
 
-  // ❤️ Toggle wishlist
-  const toggleWishlist = async (product) => {
+  // 👉 TOGGLE WISHLIST
+  const toggleWishlist = async (item) => {
     const uid = localStorage.getItem("userId");
 
     if (!uid) {
-      alert("Vui lòng đăng nhập để thêm sản phẩm yêu thích!");
+      window.dispatchEvent(new CustomEvent("open-login"));
       return;
     }
 
+    const payload = {
+      product: {
+        productId: item._id, // FIX CHUẨN
+        name: item.name,
+        price: item.price,
+        image: item.image,
+        category: item.category,
+      },
+    };
+
     try {
       const res = await fetch(
-        `https://thanhdatshoes.id.vn/api/users/wishlist/${uid}`,
+        `https://thanhdatshoes.id.vn/api/auth/wishlist/${uid}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ product }),
+          body: JSON.stringify(payload),
         }
       );
 
       const data = await res.json();
+
       if (res.ok) {
         setWishlist(data.wishlist);
       } else {
@@ -62,12 +70,7 @@ export const WishlistProvider = ({ children }) => {
   };
 
   return (
-    <WishlistContext.Provider
-      value={{
-        wishlist,
-        toggleWishlist,
-      }}
-    >
+    <WishlistContext.Provider value={{ wishlist, toggleWishlist }}>
       {children}
     </WishlistContext.Provider>
   );
