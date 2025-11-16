@@ -3,7 +3,6 @@ import AccountSidebar from "../../components/AccountSidebar";
 import OrderDetailModal from "../../components/OrderDetailModal";
 import { API_BASE } from "../../config/api";
 
-
 export default function Orders() {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -12,9 +11,9 @@ export default function Orders() {
   useEffect(() => {
     if (!userId) return;
 
-fetch(`https://thanhdatshoes.id.vn/api/orders/user/${userId}`)
+    fetch(`${API_BASE}/orders/user/${userId}`)
       .then((res) => res.json())
-      .then((data) => setOrders(data))
+      .then((data) => setOrders(Array.isArray(data) ? data : []))
       .catch((err) => console.error("❌ Lỗi lấy đơn hàng:", err));
   }, [userId]);
 

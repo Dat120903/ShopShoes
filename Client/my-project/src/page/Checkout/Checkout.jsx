@@ -47,7 +47,8 @@ export default function Checkout() {
   // ✅ Lấy thông tin người dùng (auto fill)
   useEffect(() => {
     if (!userId) return;
-fetch(`https://thanhdatshoes.id.vn/api/auth/user/${userId}`, {
+fetch(`${API_BASE}/auth/user/${userId}`, {
+
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -150,7 +151,7 @@ fetch(`https://thanhdatshoes.id.vn/api/auth/user/${userId}`, {
 
     try {
       setLoading(true);
-const res = await fetch("https://thanhdatshoes.id.vn/api/orders", {
+const res = await fetch(`${API_BASE}/orders`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderData),

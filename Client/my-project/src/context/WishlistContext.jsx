@@ -5,51 +5,52 @@ const WishlistContext = createContext();
 
 export const WishlistProvider = ({ children }) => {
   const [wishlist, setWishlist] = useState([]);
-  const [userId, setUserId] = useState(localStorage.getItem("userId") || null);
 
-  // Đồng bộ userId khi login / logout
-  useEffect(() => {
-    const syncUser = () => setUserId(localStorage.getItem("userId") || null);
-    window.addEventListener("storage", syncUser);
-    syncUser();
-    return () => window.removeEventListener("storage", syncUser);
-  }, []);
+  // luôn đọc userId mới nhất
+  const getUID = () => localStorage.getItem("userId");
 
-  // 👉 LOAD WISHLIST KHI CÓ userId
-  useEffect(() => {
-    if (!userId) {
+  // load wishlist khi userId thay đổi
+  const loadWishlist = async () => {
+    const uid = getUID();
+    if (!uid) {
       setWishlist([]);
       return;
     }
 
-    const fetchWishlist = async () => {
-      try {
-        const res = await fetch(`${API_BASE}/users/wishlist/${userId}`);
-
-        if (!res.ok) {
-          console.error("❌ Lỗi lấy wishlist:", res.status);
-          setWishlist([]);
-          return;
-        }
-
-        const data = await res.json();
-        if (Array.isArray(data.wishlist)) {
-          setWishlist(data.wishlist);
-        } else {
-          setWishlist([]);
-        }
-      } catch (err) {
-        console.error("Lỗi lấy wishlist:", err);
+    try {
+      const res = await fetch(`${API_BASE}/users/wishlist/${uid}`);
+      if (!res.ok) {
+        console.error("❌ Lỗi lấy wishlist:", res.status);
+        setWishlist([]);
+        return;
       }
+
+      const data = await res.json();
+      setWishlist(Array.isArray(data.wishlist) ? data.wishlist : []);
+    } catch (err) {
+      console.error("❌ Wishlist fetch failed:", err);
+    }
+  };
+
+  // chạy khi mounted + khi login/logout
+  useEffect(() => {
+    loadWishlist();
+
+    const onStorage = () => loadWishlist(); 
+    const onAuth = () => loadWishlist();
+
+    window.addEventListener("storage", onStorage);
+    window.addEventListener("auth-changed", onAuth);
+
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("auth-changed", onAuth);
     };
+  }, []);
 
-    fetchWishlist();
-  }, [userId]);
-
-  // 👉 TOGGLE WISHLIST
+  // toggle wishlist
   const toggleWishlist = async (item) => {
-    const uid = localStorage.getItem("userId");
-
+    const uid = getUID();
     if (!uid) {
       window.dispatchEvent(new CustomEvent("open-login"));
       return;
@@ -57,7 +58,7 @@ export const WishlistProvider = ({ children }) => {
 
     const payload = {
       product: {
-        productId: item.productId || item._id,
+        productId: item._id || item.productId,
         name: item.name,
         price: item.price,
         image: item.image,
@@ -73,14 +74,13 @@ export const WishlistProvider = ({ children }) => {
       });
 
       const data = await res.json();
-
       if (res.ok && Array.isArray(data.wishlist)) {
         setWishlist(data.wishlist);
       } else {
         console.error("❌ Lỗi cập nhật wishlist:", data.message);
       }
     } catch (err) {
-      console.error("❌ Wishlist fetch failed:", err);
+      console.error("❌ Wishlist update failed:", err);
     }
   };
 
