@@ -1,11 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const userController = require("../controllers/userController");
-const authController = require("../controllers/authController");
 
-// WISHLIST (chuẩn FE đang gọi)
-router.get("/wishlist/:userId", authController.getWishlist);
-router.put("/wishlist/:userId", authController.updateWishlist);
+const userController = require("../controllers/userController");
+const wishlistController = require("../controllers/wishlistController");
+
+// WISHLIST
+router.get("/wishlist/:userId", wishlistController.getWishlist);
+router.put("/wishlist/:userId", wishlistController.updateWishlist);
 
 // USER INFO
 router.put("/update-info/:id", userController.updateInfo);
@@ -18,3 +19,4 @@ router.put("/:id", userController.updateUser);
 router.delete("/:id", userController.deleteUser);
 
 module.exports = router;
+

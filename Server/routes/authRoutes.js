@@ -2,9 +2,8 @@ const express = require("express");
 const router = express.Router();
 const authController = require("../controllers/authController");
 
-// AUTH
-router.post("/register", authController.register);   // đăng ký
-router.post("/login", authController.login);         // đăng nhập
-router.get("/me", authController.me);                // lấy thông tin user từ token
+router.post("/register", authController.register);
+router.post("/login", authController.login);
+router.get("/me", authController.me);
 
 module.exports = router;
