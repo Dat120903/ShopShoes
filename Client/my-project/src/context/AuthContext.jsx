@@ -9,7 +9,9 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem("token") || null);
   const [loading, setLoading] = useState(true);
 
-  // LOAD USER KHI RELOAD TRANG
+  // ============================
+  // LOAD USER KHI REFRESH TRANG
+  // ============================
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
     const storedUser = localStorage.getItem("user");
@@ -18,22 +20,21 @@ export const AuthProvider = ({ children }) => {
       setToken(storedToken);
       setUser(JSON.parse(storedUser));
     }
+
     setLoading(false);
   }, []);
 
-  // ===========================
+  // ============================
   // LOGIN NỘI BỘ
-  // ===========================
+  // ============================
   const login = async (receivedToken) => {
     try {
-      const decoded = jwtDecode(receivedToken);
-
-      // LẤY USER TỪ BACKEND
       const res = await fetch(`${API_BASE}/auth/me`, {
         headers: { Authorization: `Bearer ${receivedToken}` },
       });
 
       const data = await res.json();
+
       if (!data.user?._id) {
         console.error("Không lấy được userId từ backend");
         return;
@@ -44,6 +45,7 @@ export const AuthProvider = ({ children }) => {
       const currentUser = {
         _id: userId,
         username: data.user.username,
+        email: data.user.email || "",
         role: data.user.role,
       };
 
@@ -60,9 +62,9 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // ===========================
-  // LOGIN FUMEE
-  // ===========================
+  // ============================
+  // LOGIN FUMEE FIX CHUẨN
+  // ============================
   const loginByFumee = async (fumeeToken) => {
     try {
       const res = await fetch(`${API_BASE}/auth/fumee-login`, {
@@ -72,19 +74,22 @@ export const AuthProvider = ({ children }) => {
       });
 
       const data = await res.json();
-      if (!data.token) return;
+      if (!data.token || !data.user?._id) {
+        console.error("Token hoặc user không hợp lệ từ FUMEE");
+        return;
+      }
 
-      const decoded = jwtDecode(data.token);
       const userId = data.user._id;
 
       const fumeeUser = {
         _id: userId,
-        username: data.user.displayName,
+        username: data.user.username, // ✔ CHUẨN: username trả về từ server
+        email: data.user.email || "",
+        phone: data.user.phone || "",
         role: "user",
-        phone: data.user.phone,
-        email: data.user.email,
       };
 
+      // Lưu localStorage
       localStorage.setItem("token", data.token);
       localStorage.setItem("fumeesoft_token", fumeeToken);
       localStorage.setItem("user", JSON.stringify(fumeeUser));
@@ -99,9 +104,9 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // ===========================
-  // ĐĂNG XUẤT
-  // ===========================
+  // ============================
+  // LOGOUT
+  // ============================
   const logout = () => {
     setUser(null);
     setToken(null);
@@ -121,7 +126,14 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, token, login, loginByFumee, logout, loading }}
+      value={{
+        user,
+        token,
+        login,
+        loginByFumee,
+        logout,
+        loading,
+      }}
     >
       {!loading && children}
     </AuthContext.Provider>
