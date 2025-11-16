@@ -100,50 +100,6 @@ exports.me = async (req, res) => {
 };
 
 // ========================
-// WISHLIST GET
-// ========================
-exports.getWishlist = async (req, res) => {
-  try {
-    const user = await User.findById(req.params.userId);
-    if (!user) return res.status(404).json({ message: "User không tồn tại" });
-
-    res.json({ wishlist: user.wishlist || [] });
-  } catch (err) {
-    res.status(500).json({ message: "Lỗi server" });
-  }
-};
-
-// ========================
-// WISHLIST UPDATE
-// ========================
-exports.updateWishlist = async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const { product } = req.body;
-
-    const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ message: "User không tồn tại" });
-
-    const exists = user.wishlist.some(
-      (item) => item.productId.toString() === product.productId
-    );
-
-    if (exists) {
-      user.wishlist = user.wishlist.filter(
-        (item) => item.productId.toString() !== product.productId
-      );
-    } else {
-      user.wishlist.push(product);
-    }
-
-    await user.save();
-    res.json({ message: "OK", wishlist: user.wishlist });
-  } catch (err) {
-    res.status(500).json({ message: "Lỗi server" });
-  }
-};
-
-// ========================
 // CART GET
 // ========================
 exports.getCart = async (req, res) => {

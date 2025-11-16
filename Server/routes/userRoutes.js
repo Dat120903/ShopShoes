@@ -1,12 +1,11 @@
 const express = require("express");
 const router = express.Router();
-
 const userController = require("../controllers/userController");
 const wishlistController = require("../controllers/wishlistController");
 
-// WISHLIST
-router.get("/wishlist/:userId", wishlistController.getWishlist);
-router.put("/wishlist/:userId", wishlistController.updateWishlist);
+// WISHLIST đúng route
+router.get("/wishlist/:id", wishlistController.getWishlist);
+router.put("/wishlist/:id", wishlistController.updateWishlist);
 
 // USER INFO
 router.put("/update-info/:id", userController.updateInfo);
@@ -19,4 +18,3 @@ router.put("/:id", userController.updateUser);
 router.delete("/:id", userController.deleteUser);
 
 module.exports = router;
-
